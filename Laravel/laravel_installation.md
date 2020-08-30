@@ -27,11 +27,11 @@ Dopo aver creato un progetto laravel richiede di impostare i permessi ai file e 
     ``` 
     sudo chown -R www-data:www-data /path/to/root
     ``` 
-* cambiare permessi ai file:
+* cambiare permessi ai file (www-data deve poter leggere-scrivere):
     ``` 
     sudo find /path/to/root -type f -exec chmod 644 {} \;
     ``` 
-* cambiare permessi alle directory:
+* cambiare permessi alle directory (www-data deve poter leggere-scrivere-eseguire):
     sudo find /path/to/root -type d -exec chmod 755 {} \;
 * dare i permessi per le cartelle di storage e bootstrap/cache per scrivere ed eseguire file:
     ``` 
