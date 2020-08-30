@@ -1,2 +1,2 @@
 # Notes
-notes taken during learning new stuff :)
+notes taken while learning new stuff :)
