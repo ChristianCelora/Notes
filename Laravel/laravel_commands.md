@@ -48,5 +48,5 @@ npm install @fortawesome/fontawesome-free   # font awesome 5
 
 Inserire nel file app.scss:
 ``` 
-@import "~@fortawesome/fontawesome-free/css/all.min.css"
+@import "~@fortawesome/fontawesome-free/scss/fontawesome"
 ``` 
