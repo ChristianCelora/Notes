@@ -33,11 +33,11 @@ Inserire nel file app.scss il link per usare bootstrap (come da esempio sotto).
 Esempio file app.scss per importare bootstrap e font da google
 ``` 
 // Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url("https://fonts.googleapis.com/css?family=Nunito");
 // Variables
-@import 'variables';
+@import "variables";
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+@import "~bootstrap/scss/bootstrap";
 ``` 
 
 ## Installare Font Awesome
@@ -48,8 +48,5 @@ npm install @fortawesome/fontawesome-free   # font awesome 5
 
 Inserire nel file app.scss:
 ``` 
-@import '~@fortawesome/fontawesome-free/scss/fontawesome';
-@import '~@fortawesome/fontawesome-free/scss/regular';
-@import '~@fortawesome/fontawesome-free/scss/solid';
-@import '~@fortawesome/fontawesome-free/scss/brands';
+@import "~@fortawesome/fontawesome-free/css/all.min.css"
 ``` 
