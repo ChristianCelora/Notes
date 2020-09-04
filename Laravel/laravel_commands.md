@@ -46,7 +46,19 @@ npm install font-awesome --save             # font awesome
 npm install @fortawesome/fontawesome-free   # font awesome 5 
 ``` 
 
-Inserire nel file app.scss:
+Se l'installazione è andata a buon fine nel file package.json si crea la linea corrispondente alla dipendenza:
+``` 
+"dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0"
+}
+``` 
+
+Inserire nel file resources/css/app.scss:
 ``` 
 @import "~@fortawesome/fontawesome-free/scss/fontawesome"
+``` 
+
+Inserire nel file resources/js/app.js:
+``` 
+require('@fortawesome/fontawesome-free/js/all.js');
 ``` 
