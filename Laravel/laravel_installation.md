@@ -54,3 +54,10 @@ Esempio configurazione virtualhost:
 </Directory>
 Alias /ghostpdf /var/www/ghostpdf/GhostPDF/public
 ``` 
+
+# Upgrade Laravel
+Per effettuare l'upgrade di laravel basta seguire la documentazione ufficiale.
+Normalmente basta aggiornare il file composer.json con le versioni richieste da laravel e lanciare il comando:
+``` 
+composer update
+``` 
