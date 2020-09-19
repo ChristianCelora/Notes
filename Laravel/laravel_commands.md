@@ -62,3 +62,20 @@ Inserire nel file resources/js/app.js:
 ``` 
 require('@fortawesome/fontawesome-free/js/all.js');
 ``` 
+
+
+## Testing
+Per creare un nuovo test:
+``` 
+// Create a test in the Feature directory...
+php artisan make:test UserTest
+
+// Create a test in the Unit directory...
+php artisan make:test UserTest --unit
+``` 
+
+Per lanciare i comandi di test usare il comando 
+``` 
+php artisan test
+``` 
+Tutti i parametri che si possono lanciare a phpunit si possono utilizzare anche con il comando test di artisan.
