@@ -121,7 +121,7 @@ impostare sulla propria macchina (non all'interno del container):
 ```
 sudo sysctl -w vm.max_map_count=262144
 ```
-
+Questo comando va lanciato dopo ogni riavvio. 
 ## Lanciare il container
 ```
 docker-compose build (solo la prima volta)
@@ -143,14 +143,16 @@ il link è composto da:
 ```
 dove: 
 - port è la porta mappata sotto il container "web"
-- hostname è il nome dell'host (hostname) sotto il container "web"
 
 
 ## Deploy modifiche
 In breve ci sono diversi container. ciascun container ha uno scopo specifico per maggiorin info(https://devdocs.magento.com/cloud/docker/docker-containers-cli.html):
 Gli effettivi comandi che vengono lanciati (questi sono alias) sono visibili nella sezione "hooks" sotto il file .magento.app.yaml
 
-prima di lanciare i comandi sotto fare un copia del file app/etc/env.php (c'è qualche cosa che sovrascrive il file. Nel caso viene sovrascritto riportarlo alla versione originale)
+prima di lanciare i comandi sotto fare un copia del file app/etc/env.php (c'è qualche cosa che sovrascrive il file. Nel caso viene sovrascritto riportarlo alla versione originale). In alcuni casi è necessare anche riportare l'ownership del file indietro con:
+```
+sudo chown user:user app/etc/*
+```
 ### build  
 ```
 // build environment
@@ -187,6 +189,7 @@ Se si elimina l'interfaccia di un network di docker quando va ricreato il proget
 ```
 docker-compose up --force-recreate
 ```
+Consiglio: usare sempre il comando docker-compose down per cancellare correttamente i network creati da docker e le loro interfacce relative
 ### regex vscode x trovare gli as nei referenceBlock
 ```
 (?<=referenceBlock)(.*)(?=as)
@@ -206,3 +209,9 @@ docker logs -f <container_name> 2&1> | grep "ciao"
 
 ## webapi.xml
 nelle webapi xml è importante che il tag <service> sia prima del tag <resources>
+
+## DNS_PROBE_FINISHED_NXDOMAIN
+In questo caso non riesce a trovare il domain name indicato nel file .docker/config.php, sotto la voce 'MAGENTO_CLOUD_ROUTES'. In questo caso aggiungere il domain all'interno del file /etc/hosts:
+```
+127.0.0.1 domain.name
+```
