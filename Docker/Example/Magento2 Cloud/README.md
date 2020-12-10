@@ -24,8 +24,9 @@ sudo apt install mysql-server
     mettere il risultato del dump nella cartella .docker/mysql/docker-entrypoint-initdb.d
 - lanciare manualmente il dump (dovrebbe farlo automaticamente):
     ```
-    docker exec -it backend_db_1 bash -c 'mysql -u root -p magento_db < /docker-entrypoint-initdb.d/zgzvw2kr4mr5m--   backend-cdqiuqi--mysql--main--dump.sql'
+    docker exec -it backend_db_1 bash -c 'mysql -u root -p magento_db < /docker-entrypoint-initdb.d/zgzvw2kr4mr5m--backend-cdqiuqi--mysql--main--dump.sql'
     ```
+
 - testare la connessione al db con il comando docker (e verificare la presenza delle tabelle)
     ```
     docker exec -it backend_db_1 mysql -u root -p
