@@ -133,7 +133,7 @@ copiare il file app/etc/env.php in locale e modificare le opzioni sotto 'db' con
 
 ## Lanciare composer install 
 ```
-docker run -it  -v $(pwd):/app/:delegated -v ~/.composer/:/root/.composer/:delegated magento/magento-cloud-docker-php:7.3-cli-1.1 bash -c "composer install&&chown www. /app/"
+docker run -it -v $(pwd):/app/:delegated -v ~/.composer/:/root/.composer/:delegated magento/magento-cloud-docker-php:7.3-cli-1.1 bash -c "composer install&&chown www. /app/"
 ```
 
 ## Accedere alla pagina
@@ -149,28 +149,30 @@ dove:
 In breve ci sono diversi container. ciascun container ha uno scopo specifico per maggiorin info(https://devdocs.magento.com/cloud/docker/docker-containers-cli.html):
 Gli effettivi comandi che vengono lanciati (questi sono alias) sono visibili nella sezione "hooks" sotto il file .magento.app.yaml
 
+### build  
 prima di lanciare i comandi sotto fare un copia del file app/etc/env.php (c'è qualche cosa che sovrascrive il file. Nel caso viene sovrascritto riportarlo alla versione originale). In alcuni casi è necessare anche riportare l'ownership del file indietro con:
 ```
 sudo chown user:user app/etc/*
 ```
-### build  
+Build environment:
 ```
-// build environment
+// build environment (avg. time: 2m 20s)
 docker-compose run --rm build cloud-build
 ```
 ### deploy
 ```
-// deploy environment
+// deploy environment (avg. time: 2m)
 docker-compose run --rm deploy cloud-deploy
-// run post-deploy hooks
+// run post-deploy hooks (avg. time: 13s)
 docker-compose run --rm deploy cloud-post-deploy
 ```
 ## Lanicare comandi magento
-usare il container deploy per lanciare comandi
+usare il container deploy per lanciare comandi. Alcuni esempi:
 ```
 docker-compose run --rm deploy magento-command setup:static-content:deploy
 docker-compose run --rm deploy magento-command setup:upgrade
 docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://localhost:8082"
+docker-compose run --rm deploy magento-command dev:tests:run <test>
 ```
 ### guide
 Guida:
@@ -195,6 +197,56 @@ Consiglio: usare sempre il comando docker-compose down per cancellare correttame
 (?<=referenceBlock)(.*)(?=as)
 ```
 
+### PHPUnit test
+Per aggiungere la possibilità di eseguire i test (unit e integration) nel docker:
+```
+composer require --dev "phpunit/phpunit:^6.5.0" // anche una versione più bassa va bene
+composer require --dev allure-framework/allure-phpunit:~1.2.0
+```
+aggiungere al file docker-compose.yml
+```rabbitmq:
+    hostname: rabbitmq.magento2.docker
+    image: 'rabbitmq'
+    ports:
+      - '5672:5672'
+    environment:
+      RABBITMQ_ERLANG_COOKIE: RABBIT_COOKIE
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      magento:
+        aliases:
+          - rabbitmq.magento2.docker
+```
+Aggiornare il file dev/tests/integration/etc/install-config-mysql.php (se è presente solo il file install-config-mysql.php.dist copiarlo e creare il file install-config-mysql.php).
+```
+return [
+    'db-host' => 'db.magento2.docker',
+    'db-user' => 'db_user',
+    'db-password' => 'db_psw',
+    'db-name' => 'db_name',
+    'db-prefix' => '',
+    'backend-frontname' => 'backend',
+    'admin-user' => \Magento\TestFramework\Bootstrap::ADMIN_NAME,
+    'admin-password' => \Magento\TestFramework\Bootstrap::ADMIN_PASSWORD,
+    'admin-email' => \Magento\TestFramework\Bootstrap::ADMIN_EMAIL,
+    'admin-firstname' => \Magento\TestFramework\Bootstrap::ADMIN_FIRSTNAME,
+    'admin-lastname' => \Magento\TestFramework\Bootstrap::ADMIN_LASTNAME,
+    'amqp-host' => 'rabbitmq.magento2.docker',
+    'amqp-port' => '5672',
+    'amqp-user' => 'RABBITMQ_DEFAULT_USER',
+    'amqp-password' => 'RABBITMQ_DEFAULT_PASS',
+];
+```
+Consiglio: per gli integration test settare nel file dev/tests/integration/phpunit.xml
+```
+<const name="TESTS_CLEANUP" value="disabled"/> // non ricrea l'installazione di magento da capo e non ripulisce il db al termine
+```
+Per lanciare i test
+```
+docker-compose run --rm deploy magento-command dev:tests:run <test>
+```
+
 ## Problemi riscontrati
 ### adabra
 Per ora il plugin di adabra da dei problemi con gli id impostati nel file vendor/adabra/adabra-magento2/etc/adminhtml/system.xml. Per ora basta rimuovere i dash '-' dagli id
@@ -205,6 +257,12 @@ Per controllare i log basta lanciare il comando
 docker logs -f <container_name>
 // i log di docker sono messi sullo stderr. ridirezioniamo l'output sul stdout in modo da poter effettuare il grep
 docker logs -f <container_name> 2&1> | grep "ciao" 
+```
+
+## db
+Connetersi al db
+```
+docker exec -it backend_db_1 mysql -u develop -p
 ```
 
 ## webapi.xml
