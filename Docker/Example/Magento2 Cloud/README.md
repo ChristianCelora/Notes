@@ -21,9 +21,10 @@ sudo apt install mysql-server
     ```
     magento-cloud db:dump
     ```
-    mettere il risultato del dump nella cartella .docker/mysql/docker-entrypoint-initdb.d
+    mettere il risultato del dump nella cartella .docker/mysql/docker-entrypoint-initdb.d (se non funziona creare una nuova cartella e aggiungere il mapping dentro volumes nel docker-compose)
 - lanciare manualmente il dump (dovrebbe farlo automaticamente):
     ```
+    // entrare prima dentor il container e creare il database
     docker exec -it backend_db_1 bash -c 'mysql -u root -p magento_db < /docker-entrypoint-initdb.d/zgzvw2kr4mr5m--backend-cdqiuqi--mysql--main--dump.sql'
     ```
 
@@ -274,3 +275,9 @@ In questo caso non riesce a trovare il domain name indicato nel file .docker/con
 ```
 127.0.0.1 domain.name
 ```
+
+## ricreare un container cancellando anche i volumi e ricreare l'immagine:
+```
+docker-compose up -d --force-recreate --build -V <container>
+```
+dove <container> è il nome messo nel doker-compose (per esempio db)
