@@ -51,6 +51,7 @@ Aggiungere il repository di Docker. Docker ha 3 repository:
 In questo caso aggiungeremo quello stable:
 ``` 
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" // se non si conosce la distribuzione
 ``` 
 
 Una volta aggiunto il repository bisogna effettuare il refresh della cache APT con il solito comando

@@ -11,7 +11,6 @@ sudo apt install mysql-server
 
 ## Configurare docker-compose.yml
 ### Db
-- configurare il container 'db' con le variabili d'ambiente del mysql in locale
 - aggiungere nel container 'db'
     ```
     ports:
