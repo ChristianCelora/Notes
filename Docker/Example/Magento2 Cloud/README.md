@@ -173,7 +173,7 @@ usare il container deploy per lanciare comandi. Alcuni esempi:
 ```
 docker-compose run --rm deploy magento-command setup:static-content:deploy
 docker-compose run --rm deploy magento-command setup:upgrade
-docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://localhost:8082"
+docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://localhost:8082/"
 docker-compose run --rm deploy magento-command dev:tests:run <test>
 ```
 ### guide
@@ -253,7 +253,7 @@ docker-compose run --rm deploy magento-command dev:tests:run <test>
 ### adabra
 Per ora il plugin di adabra da dei problemi con gli id impostati nel file vendor/adabra/adabra-magento2/etc/adminhtml/system.xml. Per ora basta rimuovere i dash '-' dagli id
 
-## logs
+### logs
 Per controllare i log basta lanciare il comando
 ```
 docker logs -f <container_name>
@@ -261,22 +261,39 @@ docker logs -f <container_name>
 docker logs -f <container_name> 2&1> | grep "ciao" 
 ```
 
-## db
+### db
 Connetersi al db
 ```
 docker exec -it backend_db_1 mysql -u develop -p
 ```
 
-## webapi.xml
+### sistemare links tabella 
+```
+update core_config_data set value = 'https://localhost:8082' where path like '%/secure/base_url';
+update core_config_data set value = 'http://localhost:8082' where path like '%/unsecure/base_url';
+
+docker-compose run --rm deploy magento-command c:c
+```
+
+### webapi.xml
 nelle webapi xml è importante che il tag <service> sia prima del tag <resources>
 
-## DNS_PROBE_FINISHED_NXDOMAIN
+### DNS_PROBE_FINISHED_NXDOMAIN
 In questo caso non riesce a trovare il domain name indicato nel file .docker/config.php, sotto la voce 'MAGENTO_CLOUD_ROUTES'. In questo caso aggiungere il domain all'interno del file /etc/hosts:
 ```
 127.0.0.1 domain.name
 ```
 
-## ricreare un container cancellando anche i volumi e ricreare l'immagine:
+### Pages on https
+Il docker non è settato con il ssl. In questo caso il sito prova a connettersi di default con l'https (sopratutto nella parte di admin):
+```
+docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://<dominio>/"
+docker-compose run --rm deploy magento-command setup:store-config:set --use-secure=0
+docker-compose run --rm deploy magento-command setup:store-config:set --use-secure-admin=0
+docker-compose run --rm deploy magento-command cache:clean
+```
+
+### ricreare un container cancellando anche i volumi e ricreare l'immagine:
 ```
 docker-compose up -d --force-recreate --build -V <container>
 ```
