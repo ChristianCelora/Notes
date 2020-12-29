@@ -79,6 +79,10 @@ Per lanciare i comandi di test usare il comando
 php artisan test
 ``` 
 Tutti i parametri che si possono lanciare a phpunit si possono utilizzare anche con il comando test di artisan.
+```
+Esempio ignorare i test con @group ignore
+php artisan test --exclude-group ignore
+```
 
 ## Best Practises
 Alcune buone pratiche da applicare nello sviluppo in Laravel si possono trovare al link
