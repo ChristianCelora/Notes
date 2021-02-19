@@ -70,5 +70,29 @@ git reflog
 git reflog show <branch>	(mostra solo i commit della branch specifica)
 ```
 
+## git revert
 
+Git revert viene usato per mantenere un flusso continuo solo in avanti dell'albero di git. 
+Questo comando crea una "patch" che annulla le modifiche dei commit precedenti. 
+Le modifiche sono visto come un nuovo commit che va committato con il comando git commit. 
+Come parametro accetta un riferimento ad un commit. 
 
+### Esempio
+
+```
+$ git log --oneline
+   86bb32e prepend content to demo file
+   3602d88 add new content to demo file
+   299b15f initial commit
+
+$ git revert HEAD	( passandogli HEAD fa il revert dell'ultimo commit )
+
+$ git log --oneline 
+   1061e79 Revert "prepend content to demo file" 
+   86bb32e prepend content to demo file 
+   3602d88 add new content to demo file 299b15f initial commit
+```
+
+Git revert è più efficace per riportare indietro un commit, 
+perchè viene mantenuta la history intatta di tutti i commit effettuati, 
+mentre con il comando reset viene modificata la history dei commit.
