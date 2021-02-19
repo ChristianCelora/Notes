@@ -7,7 +7,7 @@ Git reset viene utilizzato per spostare l'HEAD al commit specifico.
 ### Hard reset vs Soft Reset
 
 Il flag --hard è utilizzato per resttare i file dell'indice (o della staging area) e della working directory. 
-Al contrario il flag --soft non modifica la workgin directory e l'indice.
+Al contrario il flag --soft non modifica la workgin directory e l'indice (in questo caso lascia tutte le modifiche ai file come "da committare". Usare git status per vedere le varie modifiche.
 
 
 ### Utilizzo
