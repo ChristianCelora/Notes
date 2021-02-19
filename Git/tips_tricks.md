@@ -49,4 +49,22 @@ $ git status
 
 ```
 
+### Muoversi in avanti
+
+Per muoversi in avanti nella history di git usare il comando 
+
+```
+git reset 'HEAD@{1}'		(sposta l'HEAD al commit successivo)
+```
+
+Usare questa operazione nel caso si volesse ritornare ad un commit nel futuro dopo aver usato un comando di git reset su un commit precedente.
+
+Per sicurezza consultare sempre i log di git dei reference updates, in cui ci sono tutti i commit in cui è stata spostata la HEAD (checkout,reset,commit,merge):
+
+```
+git reflog
+git reflog show <branch>	(mostra solo i commit della branch specifica)
+```
+
+
 
