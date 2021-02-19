@@ -7,7 +7,9 @@ Git reset viene utilizzato per spostare l'HEAD al commit specifico.
 ### Hard reset vs Soft Reset
 
 Il flag --hard è utilizzato per resttare i file dell'indice (o della staging area) e della working directory. 
-Al contrario il flag --soft non modifica la workgin directory e l'indice (in questo caso lascia tutte le modifiche ai file come "da committare". Usare git status per vedere le varie modifiche.
+Al contrario il flag --soft non modifica la workgin directory e l'indice.
+In questo caso lascia tutte le modifiche ai file come "da committare". 
+Usare git status per vedere le varie modifiche.
 
 
 ### Utilizzo
@@ -34,7 +36,7 @@ $ git log --oneline --graph
 
 $ git reset --soft HEAD^             (oppure HEAD~1)
 
-(in questo modo la staging area viene riempita con le modifiche fatte nei commit tra 7a9ad7f e 802a2ab
+(in questo modo la staging area viene riempita con le modifiche fatte nei commit tra 7a9ad7f e 802a2ab)
 
 $ git status
 
@@ -57,9 +59,11 @@ Per muoversi in avanti nella history di git usare il comando
 git reset 'HEAD@{1}'		(sposta l'HEAD al commit successivo)
 ```
 
-Usare questa operazione nel caso si volesse ritornare ad un commit nel futuro dopo aver usato un comando di git reset su un commit precedente.
+Usare questa operazione nel caso si volesse ritornare ad un commit nel futuro dopo aver usato un comando 
+di git reset su un commit precedente.
 
-Per sicurezza consultare sempre i log di git dei reference updates, in cui ci sono tutti i commit in cui è stata spostata la HEAD (checkout,reset,commit,merge):
+Per sicurezza consultare sempre i log di git dei reference updates, 
+in cui ci sono tutti i commit in cui è stata spostata la HEAD (checkout,reset,commit,merge):
 
 ```
 git reflog
