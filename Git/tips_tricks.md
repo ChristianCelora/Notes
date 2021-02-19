@@ -1,0 +1,52 @@
+# Git - Tips $ tricks
+
+## git reset
+
+Git reset viene utilizzato per spostare l'HEAD al commit specifico.
+
+### Hard reset vs Soft Reset
+
+Il flag --hard è utilizzato per resttare i file dell'indice (o della staging area) e della working directory. 
+Al contrario il flag --soft non modifica la workgin directory e l'indice.
+
+
+### Utilizzo
+```
+$ git reset --hard HEAD		(riotrno all'HEAD)
+
+$ git reset --hard HEAD^	(ritorno al commit prima dell'HEAD)
+$ git reset --hard HEAD~1	(identico a sopra)
+
+$ git reset --hard HEAD~2	(ritorno a 2 commit prima dell'HEAD)
+```
+
+### Esempio
+
+```
+$ git log --oneline --graph
+
+  * 802a2ab (HEAD -> feature, origin/feature) feature commit
+  * 7a9ad7f (origin/master, master) version 2 commit
+  * 98a14be Version 2 commit
+  * 53a7dcf Version 1.0 commit
+  * 0a9e448 added files
+  * bd6903f first commit
+
+$ git reset --soft HEAD^             (oppure HEAD~1)
+
+(in questo modo la staging area viene riempita con le modifiche fatte nei commit tra 7a9ad7f e 802a2ab
+
+$ git status
+
+  On branch feature
+  Your branch is behind 'origin/feature' by 1 commit, and can be fast-forwarded.
+    (use "git pull" to update your local branch)
+
+  Changes to be committed:
+    (use "git reset HEAD <file>..." to unstage)
+
+          new file:   file-feature
+
+```
+
+
