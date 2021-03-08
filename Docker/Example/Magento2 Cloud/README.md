@@ -40,12 +40,8 @@ sudo apt install mysql-server
     ```
 
 ### Redis (dopo aver lanciato il container)
-- prendere l'ip gateway del docker di redis:
-    ```
-    docker ps # per prendere il id del container di docker
-    docker inspect <container_id_redis>  # l'id è sotto NetworkSettings > Networks > "nome enviornment" > Gateway
-    ```
-- sostiuire nel file env.php nella parte di cache:
+
+- sostiuire nel file env.php nella parte di cache (HOSTNAME_REDIS è definito nel file docker-compose):
     ```
     'cache' =>
       array (
@@ -66,7 +62,7 @@ sudo apt install mysql-server
             'backend' => 'Cm_Cache_Backend_Redis',
             'backend_options' =>
             array (
-              'server' => 'IP_GATEWAY_REDIS',
+              'server' => 'HOSTNAME_REDIS',
               'port' => 6379,
               'database' => 2,
             ),
@@ -286,7 +282,7 @@ In questo caso non riesce a trovare il domain name indicato nel file .docker/con
 ### Pages on https
 Il docker non è settato con il ssl. In questo caso il sito prova a connettersi di default con l'https (sopratutto nella parte di admin):
 ```
-docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://<dominio>/"
+docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://<dominio>/" # <domnio> = <url>:<porta>
 docker-compose run --rm deploy magento-command setup:store-config:set --use-secure=0
 docker-compose run --rm deploy magento-command setup:store-config:set --use-secure-admin=0
 docker-compose run --rm deploy magento-command cache:clean
