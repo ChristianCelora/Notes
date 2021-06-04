@@ -1,7 +1,5 @@
-## Pre-requisiti (??):
-```
-sudo apt install mysql-server
-```
+## Pre-requisiti 
+Installare docker e docker-compose come nella guida precedente.
 
 ## Comandi:
 ### Crea il docker-compose.yml
@@ -293,3 +291,14 @@ docker-compose run --rm deploy magento-command cache:clean
 docker-compose up -d --force-recreate --build -V <container>
 ```
 dove <container> è il nome messo nel doker-compose (per esempio db)
+
+
+### Grafica tema "rotta"
+Se non si riesce a vedere la grafica corretta lanciare il comando di generazione del tema di magento, aggiungendo il flag -f per forzare la ricreazione e specificare il tema da creare e la lingua:
+
+```
+docker-compose run --rm deploy magento-command setup:static-content:deploy -f it_IT
+```
+
+Nel nostro caso it_IT è la lingua del tema associata alla store_view che ci interessa sistemare.
+
