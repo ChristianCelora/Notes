@@ -36,8 +36,8 @@ Installare docker e docker-compose come nella guida precedente.
     ports:
       - '8082:80' 
     ```
-
-### Redis (dopo aver lanciato il container)
+  In questo modo mappiamo la posta 8082 del nostro pc con la porta 80 del container. Assicurarsi che la porta 8082 sia libera. Nel caso non lo fosse usarne un'altra.
+### Redis
 
 - sostiuire nel file env.php nella parte di cache (HOSTNAME_REDIS è definito nel file docker-compose):
     ```
@@ -50,7 +50,7 @@ Installare docker e docker-compose come nella guida precedente.
             'backend' => 'Cm_Cache_Backend_Redis',
             'backend_options' =>
             array (
-              'server' => 'IP_GATEWAY_REDIS',
+              'server' => 'HOSTNAME_REDIS',
               'port' => 6379,
               'database' => 1,
             ),
@@ -74,7 +74,7 @@ Installare docker e docker-compose come nella guida precedente.
     'save' => 'redis',
     'redis' =>
     array (
-      'host' => 'IP_GATEWAY_REDIS',
+      'host' => 'HOSTNAME_REDIS',
       'port' => 6379,
       'database' => 0,
       'disable_locking' => 1,
