@@ -303,7 +303,7 @@ docker-compose run --rm deploy magento-command setup:static-content:deploy -f it
 
 Nel nostro caso it_IT è la lingua del tema associata alla store_view che ci interessa sistemare.
 
-### Nuove credenziali db non riconosciute nel cloud-deploy
+### Nuove credenziali db non riconosciute nel cloud-deploy (v. 2.4)
 Nel caso si modificano le credenziali del container con all'interno del db, non è sufficiente aggiornare il fiel env.php a volte.
 
 Se durante il comando 
