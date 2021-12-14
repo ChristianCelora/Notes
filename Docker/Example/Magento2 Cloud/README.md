@@ -145,7 +145,8 @@ In breve ci sono diversi container. ciascun container ha uno scopo specifico per
 Gli effettivi comandi che vengono lanciati (questi sono alias) sono visibili nella sezione "hooks" sotto il file .magento.app.yaml
 
 ### build  
-prima di lanciare i comandi sotto fare un copia del file app/etc/env.php (c'è qualche cosa che sovrascrive il file. Nel caso viene sovrascritto riportarlo alla versione originale). In alcuni casi è necessare anche riportare l'ownership del file indietro con:
+prima di lanciare i comandi sotto fare un copia del file app/etc/env.php (il comando cloud-deploy sovrascrive il file nel caso di modifiche alle configurazioni). 
+In alcuni casi è necessare anche riportare l'ownership del file indietro con:
 ```
 sudo chown user:user app/etc/*
 ```
@@ -302,3 +303,13 @@ docker-compose run --rm deploy magento-command setup:static-content:deploy -f it
 
 Nel nostro caso it_IT è la lingua del tema associata alla store_view che ci interessa sistemare.
 
+### Nuove credenziali db non riconosciute nel cloud-deploy
+Nel caso si modificano le credenziali del container con all'interno del db, non è sufficiente aggiornare il fiel env.php a volte.
+
+Se durante il comando 
+```
+docker-compose run --rm deploy cloud-deploy
+```
+non si riesce a connettere al db, bisogna modificare il file `.magento.env.yaml` con le nuove credenziali nella parte DATABASE_CONFIGURATION.
+
+Per un esempio di come strutturare le informazioni consultare il file `.magento.env.yaml.dist`
