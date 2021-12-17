@@ -281,9 +281,9 @@ In questo caso non riesce a trovare il domain name indicato nel file .docker/con
 ### Pages on https
 Il docker non è settato con il ssl. In questo caso il sito prova a connettersi di default con l'https (sopratutto nella parte di admin):
 ```
-docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://<dominio>/" # <domnio> = <url>:<porta>
+docker-compose run --rm deploy magento-command setup:store-config:set --base-url="http://<dominio>/" # <domnio> = <url>:<porta> (solo per il base-url)
 docker-compose run --rm deploy magento-command setup:store-config:set --use-secure=0
-docker-compose run --rm deploy magento-command setup:store-config:set --use-secure-admin=0
+docker-compose run --rm deploy magento-command setup:store-config:set --use-secure-admin=1 # Va messo a 1 per forza (altrimenti va in ERR_TOO_MANY_REDIRECT)
 docker-compose run --rm deploy magento-command cache:clean
 ```
 
@@ -313,3 +313,11 @@ docker-compose run --rm deploy cloud-deploy
 non si riesce a connettere al db, bisogna modificare il file `.magento.env.yaml` con le nuove credenziali nella parte DATABASE_CONFIGURATION.
 
 Per un esempio di come strutturare le informazioni consultare il file `.magento.env.yaml.dist`
+    
+ ### Admin Https SSL_PROTOCOL_ERROR
+ Nel caso si vuole utilizzare l'admin senza che venga controllato l'HTTPS, bisogna lanciare il comando:
+ ```
+ docker-compose run --rm deploy magento-command setup:store-config:set --base-url-secure="http://<dominio>/"
+ ```
+ 
+ Non inserire la porta dentro l'url altrimenti andrà in errore.
