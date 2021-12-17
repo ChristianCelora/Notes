@@ -314,10 +314,10 @@ non si riesce a connettere al db, bisogna modificare il file `.magento.env.yaml`
 
 Per un esempio di come strutturare le informazioni consultare il file `.magento.env.yaml.dist`
     
- ### Admin Https SSL_PROTOCOL_ERROR
+ ### Admin Https ERR_SSL_PROTOCOL_ERROR
  Nel caso si vuole utilizzare l'admin senza che venga controllato l'HTTPS, bisogna lanciare il comando:
  ```
  docker-compose run --rm deploy magento-command setup:store-config:set --base-url-secure="http://<dominio>/"
  ```
  
- Non inserire la porta dentro l'url altrimenti andrà in errore.
+ Non inserire la porta dentro l'url altrimenti andrà in errore ERR_SSL_PROTOCOL_ERROR.
