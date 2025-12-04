@@ -1,5 +1,58 @@
 useful links: https://github.com/weiwensangsang/nestjs-best-practices?tab=readme-ov-file
-# Modules
+
+# NestJS Core Concepts Overview
+
+| Concept                  | What It Is                                                       | Purpose                                                                | Decorators Involved                                                 |
+| ------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Module**               | Organizational unit grouping providers, controllers, and exports | Defines application structure; controls visibility via imports/exports | `@Module()`                                                         |
+| **Controller**           | Class that handles incoming requests and returns responses       | Defines routing and HTTP endpoints                                     | `@Controller()`, `@Get()`, `@Post()`, `@Put()`, `@Delete()`, etc.   |
+| **Provider**             | Injectable class containing business logic                       | Encapsulates reusable logic used by controllers or other providers     | `@Injectable()`                                                     |
+| **Middleware**           | Functions executed before route handlers                         | Commonly used for logging, auth checks, body parsing                   | Configured via `MiddlewareConsumer`, no decorator                   |
+| **Pipe**                 | Class used to transform or validate input data                   | Data validation, transformation, sanitization                          | `@Injectable()`, `@UsePipes()`                                      |
+| **Guard**                | Class determining whether a request is allowed                   | Authorization, roles, route protection                                 | `@Injectable()`, `@UseGuards()`                                     |
+| **Interceptor**          | Wrapper around method execution                                  | Logging, mapping results, caching, timeout control                     | `@Injectable()`, `@UseInterceptors()`                               |
+| **Exception Filter**     | Class handling thrown exceptions                                 | Central error handling and custom responses                            | `@Catch()`, `@UseFilters()`                                         |
+| **Parameter Decorators** | Extract data from requests                                       | Access headers, body, params, query, req/res                           | `@Body()`, `@Param()`, `@Query()`, `@Headers()`, `@Req()`, `@Res()` |
+| **Custom Decorator**     | Application-specific metadata or helpers                         | Adds reusable logic or metadata inside handlers                        | `@SetMetadata()`, custom decorator functions                        |
+| **Lifecycle Hooks**      | Methods called by Nest at runtime events                         | Initialization, destruction, shutdown hooks                            | `OnModuleInit`, `OnModuleDestroy`, `BeforeApplicationShutdown`      |
+
+
+### Provider scope
+
+| Concept            | What It Is                     | Purpose                                                          | Decorators Involved                       |
+| ------------------ | ------------------------------ | ---------------------------------------------------------------- | ----------------------------------------- |
+| **Provider Scope** | Lifetime behavior of providers | Controls instance creation: singleton, transient, request-scoped | `scope: Scope.REQUEST`, `Scope.TRANSIENT` |
+Providers can have different lifetimes:
+
+| Scope                   | Behavior                                |
+| ----------------------- | --------------------------------------- |
+| **Singleton (default)** | One instance shared across app.         |
+| **Transient**           | New instance for every injection.       |
+| **Request-scoped**      | New instance for each incoming request. |
+
+Singletons are preferred unless you need specific request-level state.
+
+### Dependency Injection
+
+Nest is built around the design pattern known as **Dependency Injection**. There are several ways to define a provider you can use: 
+ - plain values
+ - classes
+ - asynchronous or synchronous factories.
+
+Occasionally, you may have dependencies that don't always need to be resolved. For example, your class might depend on a **configuration object**, but if none is provided, default values should be used. In such cases, the dependency is considered optional, and the absence of the configuration provider should not result in an error.
+To mark a provider as optional, use the `@Optional()` decorator in the constructor's signature.
+
+| Concept                       | What It Is                                                   | Purpose                                                       | Decorators Involved                                            |
+| ----------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Dependency Injection (DI)** | System to automatically create and supply class dependencies | Enables loose coupling, testability, and modular architecture | `@Inject()`, `@Optional()`, constructor injection              |
+| **Custom Provider**           | Non-class provider using tokens, factories, or values        | Allows advanced injection (e.g., config, external libs)       | `provide`, `useClass`, `useValue`, `useFactory`, `useExisting` |
+
+### Request Lifecycle
+How Nest processes requests:
+
+> Middleware → Guards → Interceptors → Pipes → Controller → Service → Response
+
+### Modules
 
 Every Nest application has at least one module, the **root module**, which serves as the starting point for Nest to build the **application graph**. This graph is an internal structure that Nest uses to resolve relationships and dependencies between modules and providers. While small applications might only have a root module, this is generally not the case. Modules are **highly recommended** as an effective way to organize your components.
 
