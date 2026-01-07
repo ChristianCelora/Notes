@@ -31,3 +31,216 @@ Below are described each components:
 - kube-proxy (optional): maintains network rules on nodes. These network rules allow network communication to your Pods from network sessions inside or outside of your cluster
 - Container runtime (CRI): described in [[#Containers]]
 
+### ReplicaSet
+
+A ReplicaSet ensures that a specified number of pod replicas are running at any given time. Replica sets objects are used when you require custom update orchestration or don't require updates at all. Otherwise, use high-level deployments to manage both pods and replica sets.
+
+### Deployments
+
+A Deployment provides declarative updates for Pods and ReplicaSets. You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate.
+
+### StatefulSets
+
+StatefulSet is the workload API object used to manage stateful applications. Manages the deployment and scaling of a set of Pods, and provides guarantees about the ordering and uniqueness of these Pods. 
+- Like a Deployment, a StatefulSet manages Pods that are based on an identical container spec.
+- Unlike a Deployment, a StatefulSet maintains a sticky identity for each of its Pods.
+
+StatefulSets are valuable for applications that require one or more of the following:
+- Stable, unique network identifiers.
+- Stable, persistent storage.
+- Ordered, graceful deployment and scaling.
+- Ordered, automated rolling updates.
+- Persistence across Pod (re)scheduling
+
+### Jobs
+
+A Job creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate. As pods successfully complete, the Job tracks the successful completions. When a specified number of successful completions is reached, the task (ie, Job) is complete. Deleting a Job will clean up the Pods it created. Suspending a Job will delete its active Pods until the Job is resumed again.
+
+# Examples
+
+### Pod
+
+Pod running nginx:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+```
+
+To create the Pod shown above, run the following command:
+
+```sh
+kubectl apply -f <yaml_file_path>
+```
+
+Usually you don't need to create Pods directly, even singleton Pods. Instead, create them using workload resources such as Deployment or Job.
+
+To retrieve the pods use 
+```sh
+kubectl get pods
+kubectl describe pods
+kubectl describe pods <pod_name>
+```
+
+Check another pod template in the [[#Jobs]] section below
+### Jobs
+
+Pod template for a simple Job
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hello
+spec:
+  template:
+    # This is the pod template
+    spec:
+      containers:
+      - name: hello
+        image: busybox:1.28
+        command: ['sh', '-c', 'echo "Hello, Kubernetes!" && sleep 3600']
+      restartPolicy: OnFailure
+    # The pod template ends here
+```
+
+To create the job run
+
+```sh
+kubectl apply -f <yaml_file_path>
+```
+
+To check job
+
+```sh
+kubectl describe job hello
+kubectl get job hello
+kubectl logs jobs/hello # get logs of job named hello
+```
+
+To get all pods created by the job run
+```sh
+pods=$(kubectl get pods --selector=batch.kubernetes.io/job-name=hello --output=jsonpath='{.items[*].metadata.name}')
+echo $pods
+```
+### Deployments
+
+The following is an example of a Deployment. It creates a ReplicaSet to bring up three `nginx` Pods:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
+In this example:
+- We created a deployment named nginx-deployment. This name will become the basis for the ReplicaSets and Pods which are created later
+- The Deployment creates a ReplicaSet that creates three replicated Pods, indicated by the `.spec.replicas` field.
+- The `.spec.selector` field defines how the created ReplicaSet finds which Pods to manage. In this case, you select a label that is defined in the Pod template (`app: nginx`). More complex rules are possible
+  - The `.spec.template` field contains the following sub-fields:
+	- The Pods are labeled `app: nginx`using the `.metadata.labels` field.
+    - The Pod template's specification, or `.spec` field, indicates that the Pods run one container, `nginx`
+    - Create one container and name it `nginx` using the `.spec.containers[0].name` field.
+
+To create the deployment run
+
+```sh
+kubectl apply -f <yaml_file_path>
+```
+
+To check the created deployment use
+
+```sh
+kubectl get deployments # summary table of all deployments
+kubectl describe deployments # all deployments
+kubectl describe deployments <deployment_name> # single deployment
+```
+
+### StatefulSet
+
+nginx Service
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+```
+
+A StatefulSet, named web, running 3 replicas of the service above
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: nginx # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: nginx
+        image: registry.k8s.io/nginx-slim:0.24
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+The volumeClaimTemplates will provide stable storage using PersistentVolumes provisioned by a PersistentVolume Provisioner.
+
+For a StatefulSet with N replicas, each Pod in the StatefulSet will be assigned an integer ordinal, that is unique over the Set. By default, pods will be assigned ordinals from 0 up through N-1. Each Pod in a StatefulSet derives its hostname from the name of the StatefulSet and the ordinal of the Pod. The pattern for the constructed hostname is `$(statefulset name)-$(ordinal)`
