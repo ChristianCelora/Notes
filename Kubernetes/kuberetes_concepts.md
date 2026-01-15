@@ -244,3 +244,74 @@ spec:
 The volumeClaimTemplates will provide stable storage using PersistentVolumes provisioned by a PersistentVolume Provisioner.
 
 For a StatefulSet with N replicas, each Pod in the StatefulSet will be assigned an integer ordinal, that is unique over the Set. By default, pods will be assigned ordinals from 0 up through N-1. Each Pod in a StatefulSet derives its hostname from the name of the StatefulSet and the ordinal of the Pod. The pattern for the constructed hostname is `$(statefulset name)-$(ordinal)`
+
+# Features
+
+### pod-to-pod communication
+
+One of the key feature is the communication between pods. Each pod has its own IP, assigned by the network plugin. An example of a job with pod to pod communication is [here](https://kubernetes.io/docs/tasks/job/job-with-pod-to-pod-communication/)
+
+## External access to services
+
+### Ingress \[not-recommended]
+
+Ingress makes your HTTP (or HTTPS) network service available using a protocol-aware configuration mechanism, that understands web concepts like URIs, hostnames, paths, and more. The Ingress concept lets you map traffic to different backends based on rules you define via the Kubernetes API.
+
+### Gateway API
+
+Gateway API is an official Kubernetes project focused on L4 and L7 routing in Kubernetes. This project represents the next generation of Kubernetes Ingress, Load Balancing, and Service Mesh APIs. It has been designed to be generic, expressive, and role-oriented.
+
+![Badge](https://gateway-api.sigs.k8s.io/images/resource-model.png)
+
+key elements:
+ - **GatewayClass**: defines a set of gateways with common configuration and managed by a controller that implements the class
+ - **Gateway**: defines a point of access at which traffic can be routed across multiple contexts
+ - **HTTPRoute** is a Gateway API type for specifying routing behaviour of HTTP requests from a Gateway listener to an API object, i.e. Service
+ - **GRPCRoute:** defines gRPC-specific rules for mapping traffic from a Gateway listener to a representation of backend network endpoints
+
+A typical Gateway resource example:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: example-gateway
+  namespace: example-namespace
+spec:
+  gatewayClassName: example-class
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    hostname: "www.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+```
+
+A typical HTTPRoute example:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: example-httproute
+spec:
+  parentRefs:
+  - name: example-gateway
+  hostnames:
+  - "www.example.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /login
+    backendRefs:
+    - name: example-svc
+      port: 8080
+```
+
+In this example, HTTP traffic from Gateway `example-gateway` with the "Host" header set to `www.example.com` and the request path specified as `/login` will be routed to Service `example-svc` on port `8080`.
+
+Here is a simple example of HTTP traffic being routed to a Service by using a Gateway and an HTTPRoute:
+![Badge](https://kubernetes.io/docs/images/gateway-request-flow.svg)
