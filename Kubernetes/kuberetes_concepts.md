@@ -1,5 +1,7 @@
 # Key elements
 
+## Cluster Architecture
+
 ### Containers
 
 Technology for packaging an application along with its runtime dependencies. A *container image* is a ready-to-run software package containing everything needed to run an application: the code and any runtime it requires, application and system libraries, and default values for any essential settings. Containers are intended to be stateless and immutable. If you want to make changes you need to build a new image
@@ -55,6 +57,41 @@ StatefulSets are valuable for applications that require one or more of the follo
 ### Jobs
 
 A Job creates one or more Pods and will continue to retry execution of the Pods until a specified number of them successfully terminate. As pods successfully complete, the Job tracks the successful completions. When a specified number of successful completions is reached, the task (ie, Job) is complete. Deleting a Job will clean up the Pods it created. Suspending a Job will delete its active Pods until the Job is resumed again.
+
+## Config
+
+### Secret
+
+A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key
+
+> Kubernetes Secrets are, by default, stored unencrypted in the API server's underlying data store (etcd).
+> In order to safely use Secrets, take at least the following steps:
+>   1. Enable Encryption at Rest for Secrets.
+>   2. Enable or configure RBAC rules with least-privilege access to Secrets.
+>   3. Restrict Secret access to specific containers.
+>   4. Consider using external Secret store providers.
+
+### ConfigMap
+
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. It allows multiple values for a single key
+
+```yaml
+data:
+  # property-like keys; each key maps to a simple value
+  player_initial_lives: "3"
+# file-like keys
+  game.properties: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5 
+```
+
+> ConfigMap does not provide secrecy or encryption. If the data you want to store are confidential use a Secret, or use additional (third party) tools to keep your data private.
+
+There are four different ways that you can use a ConfigMap to configure a container inside a Pod:
+1. Inside a container command and args
+2. Environment variables for a container
+3. Add a file in read-only volume, for the application to read
+4. Write code to run inside the Pod that uses the Kubernetes API to read a ConfigMap
 
 # Examples
 
@@ -245,9 +282,91 @@ The volumeClaimTemplates will provide stable storage using PersistentVolumes pro
 
 For a StatefulSet with N replicas, each Pod in the StatefulSet will be assigned an integer ordinal, that is unique over the Set. By default, pods will be assigned ordinals from 0 up through N-1. Each Pod in a StatefulSet derives its hostname from the name of the StatefulSet and the ordinal of the Pod. The pattern for the constructed hostname is `$(statefulset name)-$(ordinal)`
 
+### Secrets
+
+Secrets are generated through cli o yaml config file
+ - cli
+```sh
+kubectl create secret generic backend-user --from-literal=backend-username='backend-admin'
+```
+
+ - yaml
+```yaml
+apiVersion: v1
+kind: Secret
+type: Opaque # the secret type depends on its use case
+metadata:
+  name: dotfile-secret
+data:
+  .secret-file: dmFsdWUtMg0KDQo=
+```
+
+
+### ConfigMap
+
+Here's an example ConfigMap used as env variables:
+
+The following ConfigMap (myconfigmap.yaml) stores two properties: username and access_level:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myconfigmap
+data:
+  username: k8s-admin
+  access_level: "1"
+```
+
+The following command will create the ConfigMap object:
+
+```shell
+kubectl apply -f myconfigmap.yaml
+```
+
+The following Pod consumes the content of the ConfigMap as environment variables:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-configmap
+spec:
+  containers:
+    - name: app
+      command: ["/bin/sh", "-c", "printenv"]
+      image: busybox:latest
+      envFrom:
+        - configMapRef:
+            name: myconfigmap
+```
+
+If you need use them as file, here an example of a Pod that mounts a ConfigMap in a volume:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumes:
+  - name: foo
+    configMap:
+      name: myconfigmap
+```
+
+Modify your image or command line so that the program looks for files in that directory. Each key in the ConfigMap `data` map becomes the filename under `mountPath`
+If there are multiple containers in the Pod, then each container needs its own `volumeMounts` block, but only one `.spec.volumes` is needed per ConfigMap.
+
 # Features
 
-### pod-to-pod communication
+## pod-to-pod communication
 
 One of the key feature is the communication between pods. Each pod has its own IP, assigned by the network plugin. An example of a job with pod to pod communication is [here](https://kubernetes.io/docs/tasks/job/job-with-pod-to-pod-communication/)
 
@@ -256,6 +375,8 @@ One of the key feature is the communication between pods. Each pod has its own I
 ### Ingress \[not-recommended]
 
 Ingress makes your HTTP (or HTTPS) network service available using a protocol-aware configuration mechanism, that understands web concepts like URIs, hostnames, paths, and more. The Ingress concept lets you map traffic to different backends based on rules you define via the Kubernetes API.
+
+Although Ingress is still available, it's recommended to use Gateway API, described below
 
 ### Gateway API
 
@@ -315,3 +436,5 @@ In this example, HTTP traffic from Gateway `example-gateway` with the "Host" h
 
 Here is a simple example of HTTP traffic being routed to a Service by using a Gateway and an HTTPRoute:
 ![Badge](https://kubernetes.io/docs/images/gateway-request-flow.svg)
+
+
