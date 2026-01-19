@@ -437,4 +437,59 @@ In this example, HTTP traffic from Gateway `example-gateway` with the "Host" h
 Here is a simple example of HTTP traffic being routed to a Service by using a Gateway and an HTTPRoute:
 ![Badge](https://kubernetes.io/docs/images/gateway-request-flow.svg)
 
+## Monitoring
 
+The **Metrics API** offers a basic set of metrics to support automatic scaling and similar use cases. The **metrics-server** uses the Kubernetes API to track nodes and pods in your cluster. The metrics-server queries each node over HTTP to fetch metrics. You can also view these metrics using the `kubectl top` command.
+
+Here is an example of the Metrics API request for a `kube-scheduler-minikube` pod contained in the `kube-system` namespace and piped through `jq` for easier reading:
+
+```sh
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/namespaces/kube-system/pods/kube-scheduler-minikube" | jq '.'
+```
+
+The HorizontalPodAutoscaler (HPA) and VerticalPodAutoscaler (VPA) use data from the metrics API to adjust workload replicas and resources to meet customer demand.
+
+Inside each deployment we tell how how much CPU/RAM your application it needs to operate (*requests*), and the maximum amount of resources that the application should use (*limits*). Example:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment 
+name: my-nginx 
+spec: 
+ replicas: 3 
+ template: 
+  spec: 
+   containers: 
+    - name: my-nginx 
+      image: nginx:1.14.2 
+      resources: 
+       requests:
+        cpu: 1000m # 1000 "millicpus" = 1 CPU 
+        memory: 512Mi 
+       limits: # limit = "Don't let the pod use more than this" 
+        memory: 1Gi
+```
+
+
+## Horizontal Pod Autoscaler
+
+The HorizontalPodAutoscaler (HPA), means that the response to increased load is to deploy more Pods. This is different from vertical scaling, which for Kubernetes would mean assigning more resources (for example: memory or CPU) to the Pods that are already running for the workload.
+
+Kubernetes implements horizontal pod autoscaling as a control loop that runs intermittently (it is not a continuous process). The interval is set by the *--horizontal-pod-autoscaler-sync-period* parameter to the kube-controller-manager (and the default interval is 15 seconds).
+
+An example of HPA spec is the one 
+```yaml
+apiVersion: autoscaling/v1 
+kind: HorizontalPodAutoscaler 
+spec: 
+ # Scale up or down to keep the pods running ~90% CPU utilization 
+ targetCPUUtilizationPercentage: 90 
+ maxReplicas: 10 # No more than 10 pods 
+ minReplicas: 2 # No fewer than 2 pods 
+ scaleTargetRef: 
+  apiVersion: apps/v1 
+  kind: Deployment 
+  name: my-nginx
+```
+
+[Here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) is a more complex walkthrough example, where we autoscale horizontally an apache server 
