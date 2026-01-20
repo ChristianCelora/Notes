@@ -493,3 +493,38 @@ spec:
 ```
 
 [Here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) is a more complex walkthrough example, where we autoscale horizontally an apache server 
+
+## Namespaces
+
+You can think of namespaces as a way to divide a Kubernetes cluster into multiple virtual clusters, each with its own set of resources. This allows you to use the same cluster for multiple teams
+
+Some commands in the namespace
+
+```sh
+kubectl create namespace myspace # create new namespace
+kubectl apply -f app1.yaml -n myspace # deploy the app in the namespace
+```
+
+## Resource quotas
+
+A resource quota, defined by a **ResourceQuota** object, provides constraints that limit aggregate resource consumption per namespace. A ResourceQuota can also limit the quantity of objects that can be created in a namespace by API kind, as well as the total amount of infrastructure resources that may be consumed by API objects found in that namespace.
+
+Example of ResourceQuota spec and creation:
+
+```yml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: "1Gi"
+    limits.cpu: "2"
+    limits.memory: "2Gi"
+    requests.nvidia.com/gpu: 4
+```
+
+```sh
+kubectl create -f <yaml_file_path> --namespace=myspace
+```
